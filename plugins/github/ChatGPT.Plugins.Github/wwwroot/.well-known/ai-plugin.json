@@ -3,7 +3,7 @@
   "name_for_human": "Github Plugin",
   "name_for_model": "github",
   "description_for_human": "Plugin to explain the code from Github and assist with its usage",
-  "description_for_model": "Plugin to explain the code from Github and assist with its usage. Works with the provided Github file link.",
+  "description_for_model": "Plugin to explain the code from Github and assist with its usage. Works with the provided Github file or repository link.",
   "auth": {
     "type": "none"
   },

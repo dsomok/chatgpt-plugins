@@ -1,7 +1,6 @@
 ﻿using ChatGPT.Plugins.Github.Handlers;
 using ChatGPT.Plugins.Github.Models;
 using MediatR;
-using Microsoft.OpenApi.Models;
 
 namespace ChatGPT.Plugins.Github.Configuration;
 

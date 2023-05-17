@@ -1,5 +1,6 @@
 ﻿using ChatGPT.Plugins.Github.Handlers;
 using ChatGPT.Plugins.Github.HttpClients;
+using ChatGPT.Plugins.Github.Strategies;
 using Microsoft.OpenApi.Models;
 
 namespace ChatGPT.Plugins.Github.Configuration;
@@ -17,6 +18,13 @@ public static class Dependencies
         });
 
         services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(QueryGithubRequestHandler).Assembly));
+
+        services.Scan(
+            scan => scan.FromAssemblyOf<IGithubStrategy>()
+                        .AddClasses(filter => filter.AssignableTo<IGithubStrategy>(), false)
+                        .AsImplementedInterfaces()
+                        .WithTransientLifetime()
+        );
 
         return services.AddEndpointsApiExplorer()
                        .AddSwaggerGen(options =>

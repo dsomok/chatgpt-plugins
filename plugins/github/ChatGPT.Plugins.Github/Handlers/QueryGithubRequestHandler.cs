@@ -1,21 +1,26 @@
-﻿using ChatGPT.Plugins.Github.HttpClients;
+﻿using ChatGPT.Plugins.Github.Strategies;
 using MediatR;
 
 namespace ChatGPT.Plugins.Github.Handlers;
 
 internal class QueryGithubRequestHandler : IRequestHandler<QueryGithubRequest, string>
 {
-    private readonly IGithubHttpClient _githubHttpClient;
+    private readonly IEnumerable<IGithubStrategy> _strategies;
 
-    public QueryGithubRequestHandler(IGithubHttpClient githubHttpClient)
+    public QueryGithubRequestHandler(IEnumerable<IGithubStrategy> strategies)
     {
-        _githubHttpClient = githubHttpClient;
+        _strategies = strategies;
     }
 
     public Task<string> Handle(QueryGithubRequest request, CancellationToken cancellationToken)
     {
-        var relativeUri = new Uri(request.GithubLink).PathAndQuery;
-        return _githubHttpClient.GetRawContentAsync(relativeUri, cancellationToken);
+        var strategy = _strategies.FirstOrDefault(strategy => strategy.IsApplicable(request.GithubLink));
+        if (strategy == null)
+        {
+            throw new Exception("Failed to process the provided Github link");
+        }
+
+        return strategy.ApplyAsync(request.GithubLink, cancellationToken);
     }
 }
 
