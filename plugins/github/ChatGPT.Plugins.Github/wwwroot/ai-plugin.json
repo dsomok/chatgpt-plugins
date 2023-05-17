@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Github Plugin",
+  "name_for_model": "github-plugin",
+  "description_for_human": "Plugin to explain the code from Github and assist with its usage",
+  "description_for_model": "Plugin to explain the code from Github and assist with its usage. Works with the provided Github file link.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://dsomok.online/swagger/v1/swagger.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "http://dsomok.online/logo.png",
+  "contact_email": "dsomok.github@gmail.com",
+  "legal_info_url": "http://dsomok.online/legal.html"
+}
