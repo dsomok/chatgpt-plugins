@@ -1,7 +1,9 @@
-﻿using ChatGPT.Plugins.Github.Handlers;
-using ChatGPT.Plugins.Github.HttpClients;
-using ChatGPT.Plugins.Github.Strategies;
+﻿using ChatGPT.Plugins.Github.Configuration.Models;
+using ChatGPT.Plugins.Github.Handlers;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using Octokit;
+using Octokit.Internal;
 
 namespace ChatGPT.Plugins.Github.Configuration;
 
@@ -12,19 +14,17 @@ public static class Dependencies
         IConfiguration configuration
     )
     {
-        services.AddHttpClient<IGithubHttpClient, GithubHttpClient>(httpClient =>
+        services.Configure<GithubConfiguration>(configuration.GetSection("Github"));
+
+        services.AddSingleton<IGitHubClient>(sp =>
         {
-            httpClient.BaseAddress = new Uri("https://raw.githubusercontent.com");
+            var config = sp.GetRequiredService<IOptions<GithubConfiguration>>();
+            var credentials = new InMemoryCredentialStore(new Credentials(config.Value.Token));
+
+            return new GitHubClient(new ProductHeaderValue("dsomok"), credentials);
         });
 
         services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(QueryGithubRequestHandler).Assembly));
-
-        services.Scan(
-            scan => scan.FromAssemblyOf<IGithubStrategy>()
-                        .AddClasses(filter => filter.AssignableTo<IGithubStrategy>(), false)
-                        .AsImplementedInterfaces()
-                        .WithTransientLifetime()
-        );
 
         return services.AddEndpointsApiExplorer()
                        .AddSwaggerGen(options =>
