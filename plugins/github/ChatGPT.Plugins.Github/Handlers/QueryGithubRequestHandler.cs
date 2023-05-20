@@ -44,4 +44,4 @@ internal class QueryGithubRequestHandler : IRequestHandler<QueryGithubRequest, s
     }
 }
 
-public record QueryGithubRequest(string UserQuestion, string GithubLink) : IRequest<string>;
+public record QueryGithubRequest(string GithubLink) : IRequest<string>;

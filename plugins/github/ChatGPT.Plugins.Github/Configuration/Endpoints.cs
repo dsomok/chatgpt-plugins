@@ -8,9 +8,9 @@ public static class Endpoints
 {
     public static WebApplication MapEndpoints(this WebApplication app)
     {
-        app.MapGet("/api/chatgpt-plugins/github/query", async (string prompt, string link, IMediator mediator) =>
+        app.MapGet("/api/chatgpt-plugins/github/query", async (string link, IMediator mediator) =>
            {
-               var content = await mediator.Send(new QueryGithubRequest(prompt, link));
+               var content = await mediator.Send(new QueryGithubRequest(link));
                return new QueryResponse(content);
            })
            .Produces<QueryResponse>()
