@@ -1,7 +1,8 @@
 ﻿using System.Text.RegularExpressions;
+using ChatGPT.Plugins.Github.Models;
 using Octokit;
 
-namespace ChatGPT.Plugins.Github.Components.Github;
+namespace ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
 
 internal class GithubFilesExtractor : IGithubFilesExtractor
 {
@@ -20,9 +21,9 @@ internal class GithubFilesExtractor : IGithubFilesExtractor
         _githubClient = githubClient;
     }
 
-    public IAsyncEnumerable<RepositoryContent> GetRepositoryFilesAsync(string owner, string name, CancellationToken cancellationToken)
+    public IAsyncEnumerable<RepositoryContent> GetRepositoryFilesAsync(GithubLink githubLink, CancellationToken cancellationToken)
     {
-        return GetContent(owner, name, string.Empty, 0);
+        return GetContent(githubLink.Owner, githubLink.RepositoryName, githubLink.RelativePath, 0);
     }
 
     private async IAsyncEnumerable<RepositoryContent> GetContent(string owner, string name, string path, int processedCount)

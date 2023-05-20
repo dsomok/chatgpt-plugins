@@ -1,5 +1,5 @@
 ﻿using ChatGPT.Plugins.Github.Handlers;
-using ChatGPT.Plugins.Github.Models;
+using ChatGPT.Plugins.Github.Models.DTO;
 using MediatR;
 
 namespace ChatGPT.Plugins.Github.Configuration;
