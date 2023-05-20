@@ -1,6 +1,6 @@
-﻿using ChatGPT.Plugins.Github.Configuration.Models;
+﻿using ChatGPT.Plugins.Github.Components.Github;
+using ChatGPT.Plugins.Github.Configuration.Models;
 using ChatGPT.Plugins.Github.Handlers;
-using ChatGPT.Plugins.Github.Services.Github;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Octokit;
@@ -37,7 +37,7 @@ public static class Dependencies
                     });
                 });
 
-        services.AddTransient<IGithubService, GithubService>();
+        services.AddTransient<IGithubFilesExtractor, GithubFilesExtractor>();
 
         return services;
     }

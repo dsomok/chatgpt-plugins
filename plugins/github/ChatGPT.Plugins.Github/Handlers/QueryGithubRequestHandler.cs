@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using ChatGPT.Plugins.Github.Services.Github;
+using ChatGPT.Plugins.Github.Components.Github;
 using MediatR;
 using Octokit;
 
@@ -8,12 +8,12 @@ namespace ChatGPT.Plugins.Github.Handlers;
 internal class QueryGithubRequestHandler : IRequestHandler<QueryGithubRequest, string>
 {
     private readonly IGitHubClient _githubClient;
-    private readonly IGithubService _githubService;
+    private readonly IGithubFilesExtractor _githubFilesExtractor;
 
-    public QueryGithubRequestHandler(IGitHubClient githubClient, IGithubService githubService)
+    public QueryGithubRequestHandler(IGitHubClient githubClient, IGithubFilesExtractor githubFilesExtractor)
     {
         _githubClient = githubClient;
-        _githubService = githubService;
+        _githubFilesExtractor = githubFilesExtractor;
     }
 
     public async Task<string> Handle(QueryGithubRequest request, CancellationToken cancellationToken)
@@ -23,7 +23,7 @@ internal class QueryGithubRequestHandler : IRequestHandler<QueryGithubRequest, s
         var owner = repositorySegments[1].Replace("/", string.Empty);
         var name = repositorySegments[2].Replace("/", string.Empty);
 
-        var contents = _githubService.GetRepositoryFilesAsync(owner, name, cancellationToken);
+        var contents = _githubFilesExtractor.GetRepositoryFilesAsync(owner, name, cancellationToken);
         return await BuildResponse(owner, name, contents, cancellationToken);
     }
 

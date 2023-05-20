@@ -1,13 +1,21 @@
-﻿using Octokit;
+﻿using System.Text.RegularExpressions;
+using Octokit;
 
-namespace ChatGPT.Plugins.Github.Services.Github;
+namespace ChatGPT.Plugins.Github.Components.Github;
 
-internal class GithubService : IGithubService
+internal class GithubFilesExtractor : IGithubFilesExtractor
 {
     private const int MAX_FILES_COUNT = 100;
     private readonly IGitHubClient _githubClient;
 
-    public GithubService(IGitHubClient githubClient)
+    private readonly List<string> _includedFilePatterns = new()
+    {
+        @"*\.cs",
+        @"*\.js",
+        @"*\.md"
+    };
+
+    public GithubFilesExtractor(IGitHubClient githubClient)
     {
         _githubClient = githubClient;
     }
@@ -27,6 +35,11 @@ internal class GithubService : IGithubService
         {
             if (content.Type.Value == ContentType.File)
             {
+                if (!IsIncluded(content))
+                {
+                    continue;
+                }
+
                 yield return content;
 
                 processedCount++;
@@ -41,5 +54,10 @@ internal class GithubService : IGithubService
                     yield return repositoryContent;
             }
         }
+    }
+
+    private bool IsIncluded(RepositoryContent file)
+    {
+        return _includedFilePatterns.Any(pattern => Regex.IsMatch(file.Name, pattern));
     }
 }
