@@ -10,9 +10,9 @@ internal class GithubFilesExtractor : IGithubFilesExtractor
 
     private readonly List<string> _includedFilePatterns = new()
     {
-        @"*\.cs",
-        @"*\.js",
-        @"*\.md"
+        @"^.+\.cs$",
+        @"^.+\.js$",
+        @"^.+\.md$"
     };
 
     public GithubFilesExtractor(IGitHubClient githubClient)
