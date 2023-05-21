@@ -13,7 +13,7 @@ internal static class Dependencies
                        .AddSingleton<IFileContentProcessor, UsingsRemover>()
                        .AddSingleton<IFileContentProcessor, FileContentMinifier>()
                        .AddSingleton<IResponseProcessor, ResponseLengthHardLimitProcessor>()
-                       .AddSingleton<IGithubFilesExtractor, GithubFilesExtractor>()
+                       .AddSingleton<IGithubFilesEnumerator, GithubFilesEnumerator>()
                        .AddSingleton<IGithubLinkParser, GithubLinkParser>();
     }
 }

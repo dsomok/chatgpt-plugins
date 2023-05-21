@@ -4,5 +4,5 @@ public class QueryRequest
 {
     public string Url { get; set; }
 
-    public List<string> FileNames { get; set; }
+    public List<string> FilePaths { get; set; }
 }

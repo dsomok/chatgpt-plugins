@@ -38,7 +38,7 @@ public static class Endpoints
 
         app.MapPost("/api/chatgpt-plugins/github/query", async ([FromBody] QueryRequest request, IMediator mediator) =>
            {
-               var files = await mediator.Send(new GithubRepositoryFilesRequest(request.Url, request.FileNames));
+               var files = await mediator.Send(new GithubRepositoryFilesRequest(request.Url, request.FilePaths));
                var response = new QueryResponse(files);
                return TypedResults.Json(response);
            })
