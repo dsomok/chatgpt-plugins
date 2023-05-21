@@ -1,4 +1,5 @@
-﻿using ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
+﻿using ChatGPT.Plugins.Github.Components;
+using ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
 using ChatGPT.Plugins.Github.Components.Github.LinkParser;
 using ChatGPT.Plugins.Github.Configuration.Models;
 using ChatGPT.Plugins.Github.Handlers;
@@ -38,8 +39,7 @@ public static class Dependencies
                     });
                 });
 
-        services.AddSingleton<IGithubFilesExtractor, GithubFilesExtractor>()
-                .AddSingleton<IGithubLinkParser, GithubLinkParser>();
+        services.AddComponents();
 
         return services;
     }
