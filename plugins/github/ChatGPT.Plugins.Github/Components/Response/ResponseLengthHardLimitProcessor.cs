@@ -4,7 +4,7 @@ namespace ChatGPT.Plugins.Github.Components.Response;
 
 internal class ResponseLengthHardLimitProcessor : IResponseProcessor
 {
-    private const int MAX_RESPONSE_CHARACTERS = 98000;
+    private const int MAX_RESPONSE_CHARACTERS = 95000;
 
     public Task<IList<GithubFile>> ProcessResponseAsync(IList<GithubFile> files, CancellationToken cancellationToken)
     {
