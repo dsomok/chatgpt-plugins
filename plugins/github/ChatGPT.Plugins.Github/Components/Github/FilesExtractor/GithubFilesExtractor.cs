@@ -23,10 +23,10 @@ internal class GithubFilesExtractor : IGithubFilesExtractor
 
     public IAsyncEnumerable<RepositoryContent> GetRepositoryFilesAsync(GithubLink githubLink, CancellationToken cancellationToken)
     {
-        return GetContent(githubLink.Owner, githubLink.RepositoryName, githubLink.RelativePath, 0);
+        return GetContent(githubLink.Owner, githubLink.RepositoryName, githubLink.RelativePath, 0, cancellationToken);
     }
 
-    private async IAsyncEnumerable<RepositoryContent> GetContent(string owner, string name, string path, int processedCount)
+    private async IAsyncEnumerable<RepositoryContent> GetContent(string owner, string name, string path, int processedCount, CancellationToken cancellationToken)
     {
         var contents = string.IsNullOrWhiteSpace(path)
             ? await _githubClient.Repository.Content.GetAllContents(owner, name)
@@ -34,6 +34,11 @@ internal class GithubFilesExtractor : IGithubFilesExtractor
 
         foreach (var content in contents)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                yield break;
+            }
+
             if (content.Type.Value == ContentType.File)
             {
                 if (!IsIncluded(content))
@@ -51,7 +56,7 @@ internal class GithubFilesExtractor : IGithubFilesExtractor
             }
             else if (content.Type.Value == ContentType.Dir)
             {
-                await foreach (var repositoryContent in GetContent(owner, name, content.Path, processedCount))
+                await foreach (var repositoryContent in GetContent(owner, name, content.Path, processedCount, cancellationToken))
                     yield return repositoryContent;
             }
         }

@@ -11,7 +11,8 @@ public static class Endpoints
         app.MapGet("/api/chatgpt-plugins/github/query", async (string link, IMediator mediator) =>
            {
                var files = await mediator.Send(new QueryGithubRequest(link));
-               return new QueryResponse(files);
+               var response = new QueryResponse(files);
+               return TypedResults.Json(response);
            })
            .Produces<QueryResponse>()
            .WithOpenApi(operation => new(operation)
