@@ -26,7 +26,7 @@ public static class Dependencies
             return new GitHubClient(new ProductHeaderValue("dsomok"), credentials);
         });
 
-        services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(QueryGithubRequestHandler).Assembly));
+        services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(GithubRepositoryFilesRequestHandler).Assembly));
 
         services.AddEndpointsApiExplorer()
                 .AddSwaggerGen(options =>

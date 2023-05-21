@@ -1,6 +1,7 @@
 ﻿using ChatGPT.Plugins.Github.Handlers;
 using ChatGPT.Plugins.Github.Models.DTO;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ChatGPT.Plugins.Github.Configuration;
 
@@ -8,17 +9,43 @@ public static class Endpoints
 {
     public static WebApplication MapEndpoints(this WebApplication app)
     {
-        app.MapGet("/api/chatgpt-plugins/github/query", async (string link, IMediator mediator) =>
+        //app.MapGet("/api/chatgpt-plugins/github/query", async (string link, IMediator mediator) =>
+        //   {
+        //       var files = await mediator.Send(new GithubRepositoryFilesRequest(link));
+        //       var response = new QueryResponse(files);
+        //       return TypedResults.Json(response);
+        //   })
+        //   .Produces<QueryResponse>()
+        //   .WithOpenApi(operation => new(operation)
+        //   {
+        //       OperationId = "QueryGithubPlugin",
+        //       Summary = "Retrieves information related to the users question from the provided github link"
+        //   });
+
+        app.MapGet("/api/chatgpt-plugins/github/structure", async (string link, IMediator mediator) =>
            {
-               var files = await mediator.Send(new QueryGithubRequest(link));
+               var fileStructure = await mediator.Send(new GithubRepositoryStructureRequest(link));
+               var response = new StructureResponse(fileStructure);
+               return TypedResults.Json(response);
+           })
+           .Produces<StructureResponse>()
+           .WithOpenApi(operation => new(operation)
+           {
+               OperationId = "QueryGithubRepositoryStructure",
+               Summary = "Retrieves the github repository file structure to analyze it and be able to query only relevant files"
+           });
+
+        app.MapPost("/api/chatgpt-plugins/github/query", async ([FromQuery]string link, [FromBody] List<string> fileNames, IMediator mediator) =>
+           {
+               var files = await mediator.Send(new GithubRepositoryFilesRequest(link, fileNames));
                var response = new QueryResponse(files);
                return TypedResults.Json(response);
            })
            .Produces<QueryResponse>()
            .WithOpenApi(operation => new(operation)
            {
-               OperationId = "QueryGithubPlugin",
-               Summary = "Retrieves information related to the users question from the provided github link"
+               OperationId = "QueryGithubRepositoryFileContents",
+               Summary = "Retrieves github repository file contents, possibly filtered by names"
            });
 
         return app;

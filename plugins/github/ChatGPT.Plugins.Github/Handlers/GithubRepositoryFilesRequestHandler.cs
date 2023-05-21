@@ -10,7 +10,7 @@ using Octokit;
 
 namespace ChatGPT.Plugins.Github.Handlers;
 
-internal class QueryGithubRequestHandler : IRequestHandler<QueryGithubRequest, IList<GithubFile>>
+internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepositoryFilesRequest, IList<GithubFile>>
 {
     private readonly IGitHubClient _githubClient;
     private readonly IGithubLinkParser _githubLinkParser;
@@ -18,7 +18,7 @@ internal class QueryGithubRequestHandler : IRequestHandler<QueryGithubRequest, I
     private readonly IEnumerable<IFileContentProcessor> _fileContentProcessors;
     private readonly IEnumerable<IResponseProcessor> _responseProcessors;
 
-    public QueryGithubRequestHandler(
+    public GithubRepositoryFilesRequestHandler(
         IGitHubClient githubClient,
         IGithubLinkParser githubLinkParser,
         IGithubFilesExtractor githubFilesExtractor,
@@ -33,15 +33,20 @@ internal class QueryGithubRequestHandler : IRequestHandler<QueryGithubRequest, I
         _responseProcessors = responseProcessors;
     }
 
-    public async Task<IList<GithubFile>> Handle(QueryGithubRequest request, CancellationToken cancellationToken)
+    public async Task<IList<GithubFile>> Handle(GithubRepositoryFilesRequest request, CancellationToken cancellationToken)
     {
-        var githubLink = _githubLinkParser.Parse(request.GithubLink);
+        var githubLink = _githubLinkParser.Parse(request.GithubUrl);
         var files = _githubFilesExtractor.GetRepositoryFilesAsync(githubLink, cancellationToken);
 
-        return await BuildResponseAsync(githubLink, files, cancellationToken);
+        return await BuildResponseAsync(request, githubLink, files, cancellationToken);
     }
 
-    private async Task<IList<GithubFile>> BuildResponseAsync(GithubLink githubLink, IAsyncEnumerable<RepositoryContent> files, CancellationToken cancellationToken)
+    private async Task<IList<GithubFile>> BuildResponseAsync(
+        GithubRepositoryFilesRequest request,
+        GithubLink githubLink,
+        IAsyncEnumerable<RepositoryContent> files,
+        CancellationToken cancellationToken
+    )
     {
         var githubFiles = new List<GithubFile>();
         
@@ -53,11 +58,16 @@ internal class QueryGithubRequestHandler : IRequestHandler<QueryGithubRequest, I
 
         await Parallel.ForEachAsync(files, parallelOptions, async (file, ct) =>
         {
+            if (request.Files != null && request.Files.Any() && !request.Files.Contains(file.Name))
+            {
+                return;
+            }
+
             var rawContentBytes = await _githubClient.Repository.Content.GetRawContent(githubLink.Owner, githubLink.RepositoryName, file.Path);
             var rawContent = Encoding.UTF8.GetString(rawContentBytes);
             var fileContent = await ProcessFileContentAsync(rawContent, ct);
 
-            githubFiles.Add(new GithubFile(file.Name, fileContent));
+            githubFiles.Add(new GithubFile(file.Name, file.Path, fileContent));
         });
 
         return await ProcessResponseAsync(githubFiles, cancellationToken);
@@ -84,4 +94,4 @@ internal class QueryGithubRequestHandler : IRequestHandler<QueryGithubRequest, I
     }
 }
 
-public record QueryGithubRequest(string GithubLink) : IRequest<IList<GithubFile>>;
+public record GithubRepositoryFilesRequest(string GithubUrl, IList<string> Files = null) : IRequest<IList<GithubFile>>;

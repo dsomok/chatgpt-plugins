@@ -12,7 +12,6 @@ internal class GithubFilesExtractor : IGithubFilesExtractor
     private readonly List<string> _includedFilePatterns = new()
     {
         @"^.+\.cs$",
-        @"^.+\.js$",
         @"^.+\.md$"
     };
 
