@@ -13,7 +13,9 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
     private readonly List<string> _includedFilePatterns = new()
     {
         @"^.+\.cs$",
-        @"^.+\.md$"
+        @"^.+\.md$",
+        @"^.+\.json",
+        @"^.+\.txt$"
     };
 
 
