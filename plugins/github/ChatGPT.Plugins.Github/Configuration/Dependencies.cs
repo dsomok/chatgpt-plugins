@@ -1,12 +1,13 @@
-﻿using ChatGPT.Plugins.Github.Components;
-using ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
-using ChatGPT.Plugins.Github.Components.Github.LinkParser;
+﻿using System.Runtime.CompilerServices;
+using ChatGPT.Plugins.Github.Components;
 using ChatGPT.Plugins.Github.Configuration.Models;
 using ChatGPT.Plugins.Github.Handlers;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using Octokit;
 using Octokit.Internal;
+
+[assembly:InternalsVisibleTo("ChatGPT.Plugins.Github.Benchmarks")]
 
 namespace ChatGPT.Plugins.Github.Configuration;
 
@@ -28,6 +29,7 @@ public static class Dependencies
 
         services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(GithubRepositoryFilesRequestHandler).Assembly));
 
+        services.AddControllers();
         services.AddEndpointsApiExplorer()
                 .AddSwaggerGen(options =>
                 {
@@ -37,6 +39,8 @@ public static class Dependencies
                         Title = "Github Plugin",
                         Description = "Plugin to explain the code from Github and assist with its usage. Works with the provided Github file link."
                     });
+
+                    options.EnableAnnotations();
                 });
 
         services.AddComponents();

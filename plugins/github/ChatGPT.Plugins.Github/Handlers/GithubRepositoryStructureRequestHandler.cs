@@ -22,7 +22,7 @@ internal class GithubRepositoryStructureRequestHandler : IRequestHandler<GithubR
         var repositoryFiles = _githubFilesEnumerator.EnumerateRepositoryFilesAsync(githubLink, cancellationToken);
 
         var files = (await repositoryFiles.ToListAsync(cancellationToken))
-            .Select(file => new GithubFileMetadata(file.Path)).ToList();
+            .Select(filePath => new GithubFileMetadata(filePath)).ToList();
 
         return files;
     }

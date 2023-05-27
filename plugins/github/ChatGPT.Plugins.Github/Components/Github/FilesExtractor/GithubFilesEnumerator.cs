@@ -7,7 +7,6 @@ namespace ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
 
 internal class GithubFilesEnumerator : IGithubFilesEnumerator
 {
-    private const int MAX_FILES_COUNT = 100;
     private readonly IGitHubClient _githubClient;
 
     private readonly List<string> _includedFilePatterns = new()
@@ -25,13 +24,14 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
     }
 
 
-    public IAsyncEnumerable<RepositoryContent> EnumerateRepositoryFilesAsync(GithubLink githubLink, CancellationToken cancellationToken)
+    public IAsyncEnumerable<string> EnumerateRepositoryFilesAsync(GithubLink githubLink, CancellationToken cancellationToken)
     {
-        return EnumerateFiles(githubLink.Owner, githubLink.RepositoryName, githubLink.RelativePath, 0, cancellationToken);
+
+        return EnumerateFiles(githubLink.Owner, githubLink.RepositoryName, githubLink.RelativePath, cancellationToken);
     }
 
 
-    private async IAsyncEnumerable<RepositoryContent> EnumerateFiles(string owner, string name, string path, int processedCount, [EnumeratorCancellation] CancellationToken cancellationToken)
+    private async IAsyncEnumerable<string> EnumerateFiles(string owner, string name, string path, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var contents = string.IsNullOrWhiteSpace(path)
             ? await _githubClient.Repository.Content.GetAllContents(owner, name)
@@ -51,17 +51,11 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
                     continue;
                 }
 
-                yield return content;
-
-                processedCount++;
-                if (processedCount > MAX_FILES_COUNT)
-                {
-                    yield break;
-                }
+                yield return content.Path;
             }
             else if (content.Type.Value == ContentType.Dir)
             {
-                await foreach (var repositoryContent in EnumerateFiles(owner, name, content.Path, processedCount, cancellationToken))
+                await foreach (var repositoryContent in EnumerateFiles(owner, name, content.Path, cancellationToken))
                     yield return repositoryContent;
             }
         }

@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Threading;
 using ChatGPT.Plugins.Github.Components.Files;
 using ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
 using ChatGPT.Plugins.Github.Components.Github.LinkParser;
@@ -38,7 +37,7 @@ internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepos
         var githubLink = _githubLinkParser.Parse(request.GithubUrl);
         var filesStream = request.Files != null && request.Files.Any()
             ? request.Files.ToAsyncEnumerable()
-            : _githubFilesEnumerator.EnumerateRepositoryFilesAsync(githubLink, cancellationToken).Select(file => file.Path);
+            : _githubFilesEnumerator.EnumerateRepositoryFilesAsync(githubLink, cancellationToken);
 
         return await BuildResponseAsync(githubLink, filesStream, cancellationToken);
     }

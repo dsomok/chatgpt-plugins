@@ -12,6 +12,6 @@ app.UseSwagger()
    })
    .UseStaticFiles();
 
-app.MapEndpoints();
+app.MapControllers();
 
 await app.RunAsync();
