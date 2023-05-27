@@ -11,6 +11,8 @@ namespace ChatGPT.Plugins.Github.Handlers;
 
 internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepositoryFilesRequest, IList<GithubFile>>
 {
+    private const int MAX_LENGTH = 95000;
+
     private readonly IGitHubClient _githubClient;
     private readonly IGithubLinkParser _githubLinkParser;
     private readonly IGithubFilesEnumerator _githubFilesEnumerator;
@@ -56,13 +58,18 @@ internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepos
             MaxDegreeOfParallelism = 4
         };
 
+        var remainingCharacters = MAX_LENGTH;
         await Parallel.ForEachAsync(filePaths, parallelOptions, async (filePath, ct) =>
         {
             var rawContentBytes = await _githubClient.Repository.Content.GetRawContent(githubLink.Owner, githubLink.RepositoryName, filePath);
             var rawContent = Encoding.UTF8.GetString(rawContentBytes);
             var fileContent = await ProcessFileContentAsync(rawContent, ct);
 
-            githubFiles.Add(new GithubFile(filePath, fileContent));
+            if (fileContent.Length < remainingCharacters)
+            {
+                githubFiles.Add(new GithubFile(filePath, fileContent));
+                Interlocked.Add(ref remainingCharacters, -1 * fileContent.Length);
+            }
         });
 
         return await ProcessResponseAsync(githubFiles, cancellationToken);
