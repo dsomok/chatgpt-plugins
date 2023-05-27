@@ -55,7 +55,11 @@ public class GithubPluginController : ControllerBase
     public async Task<IActionResult> QueryRepositoryFiles([FromBody] QueryRequest request, CancellationToken cancellationToken)
     {
         var files = await _mediator.Send(new GithubRepositoryFilesRequest(request.RepositoryUrl, request.FilePaths), cancellationToken);
-        var response = new QueryResponse(files);
+        var response = new QueryResponse(files)
+        {
+            AssistantHint = QUERY_REPOSITORY_FILES
+        };
+
         return Ok(response);
     }
 }
