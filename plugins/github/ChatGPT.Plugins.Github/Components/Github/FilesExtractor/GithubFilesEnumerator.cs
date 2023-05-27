@@ -24,45 +24,22 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
     }
 
 
-    public IAsyncEnumerable<string> EnumerateRepositoryFilesAsync(GithubLink githubLink, CancellationToken cancellationToken)
+    public async IAsyncEnumerable<string> EnumerateRepositoryFilesAsync(GithubLink githubLink, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        var repository = await _githubClient.Repository.Get(githubLink.Owner, githubLink.RepositoryName);
+        
+        var commits = await _githubClient.Repository.Commit.GetAll(repository.Id, new ApiOptions { PageSize = 1, PageCount = 1 });
+        var latestCommit = commits.First();
 
-        return EnumerateFiles(githubLink.Owner, githubLink.RepositoryName, githubLink.RelativePath, cancellationToken);
-    }
-
-
-    private async IAsyncEnumerable<string> EnumerateFiles(string owner, string name, string path, [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
-        var contents = string.IsNullOrWhiteSpace(path)
-            ? await _githubClient.Repository.Content.GetAllContents(owner, name)
-            : await _githubClient.Repository.Content.GetAllContents(owner, name, path);
-
-        foreach (var content in contents)
+        var treeResponse = await _githubClient.Git.Tree.GetRecursive(githubLink.Owner, githubLink.RepositoryName, latestCommit!.Sha);
+        foreach (var treeItem in treeResponse.Tree.Where(IsIncluded))
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                yield break;
-            }
-
-            if (content.Type.Value == ContentType.File)
-            {
-                if (!IsIncluded(content))
-                {
-                    continue;
-                }
-
-                yield return content.Path;
-            }
-            else if (content.Type.Value == ContentType.Dir)
-            {
-                await foreach (var repositoryContent in EnumerateFiles(owner, name, content.Path, cancellationToken))
-                    yield return repositoryContent;
-            }
+            yield return treeItem.Path;
         }
     }
 
-    private bool IsIncluded(RepositoryContent file)
+    private bool IsIncluded(TreeItem treeItem)
     {
-        return _includedFilePatterns.Any(pattern => Regex.IsMatch(file.Name, pattern));
+        return _includedFilePatterns.Any(pattern => Regex.IsMatch(treeItem.Path, pattern));
     }
 }

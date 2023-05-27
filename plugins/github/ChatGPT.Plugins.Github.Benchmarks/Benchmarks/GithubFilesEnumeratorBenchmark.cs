@@ -15,8 +15,7 @@ namespace ChatGPT.Plugins.Github.Benchmarks.Benchmarks;
 public class GithubFilesEnumeratorBenchmark
 {
     private GithubLink _githubLink;
-    private IGithubFilesEnumerator _recursiveEnumerator;
-    private IGithubFilesEnumerator _treeEnumerator;
+    private IGithubFilesEnumerator _filesEnumerator;
 
     [GlobalSetup]
     public void Setup()
@@ -40,23 +39,13 @@ public class GithubFilesEnumeratorBenchmark
 
         _githubLink = new GithubLinkParser().Parse("https://github.com/dotnet/BenchmarkDotNet");
 
-        _recursiveEnumerator = new GithubFilesEnumerator(serviceProvider.GetRequiredService<IGitHubClient>());
-        _treeEnumerator = new GithubTreeFilesEnumerator(serviceProvider.GetRequiredService<IGitHubClient>());
+        _filesEnumerator = new GithubFilesEnumerator(serviceProvider.GetRequiredService<IGitHubClient>());
     }
 
     [Benchmark]
     public async Task GithubFilesEnumerator()
     {
-        await foreach (var _ in _recursiveEnumerator.EnumerateRepositoryFilesAsync(_githubLink, CancellationToken.None))
-        {
-            await Task.Yield();
-        }
-    }
-
-    [Benchmark]
-    public async Task GithubTreeFilesEnumerator()
-    {
-        await foreach (var _ in _treeEnumerator.EnumerateRepositoryFilesAsync(_githubLink, CancellationToken.None))
+        await foreach (var _ in _filesEnumerator.EnumerateRepositoryFilesAsync(_githubLink, CancellationToken.None))
         {
             await Task.Yield();
         }

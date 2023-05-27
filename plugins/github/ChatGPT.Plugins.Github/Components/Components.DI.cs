@@ -1,6 +1,7 @@
 ﻿using ChatGPT.Plugins.Github.Components.Files;
 using ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
 using ChatGPT.Plugins.Github.Components.Github.LinkParser;
+using ChatGPT.Plugins.Github.Components.Repository;
 using ChatGPT.Plugins.Github.Components.Response;
 
 namespace ChatGPT.Plugins.Github.Components;
@@ -13,8 +14,9 @@ internal static class Dependencies
                        .AddSingleton<IFileContentProcessor, UsingsRemover>()
                        .AddSingleton<IFileContentProcessor, FileContentMinifier>()
                        .AddSingleton<IResponseProcessor, ResponseLengthHardLimitProcessor>()
-                       //.AddSingleton<IGithubFilesEnumerator, GithubFilesEnumerator>()
-                       .AddSingleton<IGithubFilesEnumerator, GithubTreeFilesEnumerator>()
+                       .AddSingleton<IRepositoryStructureReducer, IgnoreInterfacesRepositoryStructureReducer>()
+                       .AddSingleton<IRepositoryStructureReducer, HardLimitRepositoryStructureReducer>()
+                       .AddSingleton<IGithubFilesEnumerator, GithubFilesEnumerator>()
                        .AddSingleton<IGithubLinkParser, GithubLinkParser>();
     }
 }

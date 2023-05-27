@@ -29,7 +29,12 @@ public static class Dependencies
 
         services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(GithubRepositoryFilesRequestHandler).Assembly));
 
-        services.AddControllers();
+        services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.WriteIndented = false;
+                });
+
         services.AddEndpointsApiExplorer()
                 .AddSwaggerGen(options =>
                 {
