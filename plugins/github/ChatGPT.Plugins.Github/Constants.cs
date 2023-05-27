@@ -11,5 +11,6 @@ public static class Constants
 
 
     public const string QUERY_REPOSITORY_FILES =
-        "If you are uncertain how to answer user's question or you need additional information you can request the contents of more files.";
+        "When answering the new users question, you must request the repository structure once again prior requesting the contants of files. " +
+        "If you are uncertain how to answer user's question or you need additional information you should query the contents of more files.";
 }
