@@ -1,3 +1,7 @@
-﻿namespace ChatGPT.Plugins.Github.Models.DTO.Responses;
+﻿using Swashbuckle.AspNetCore.Annotations;
 
-public record StructureResponse(IList<string> Files) : BasePluginResponse;
+namespace ChatGPT.Plugins.Github.Models.DTO.Responses;
+
+public record StructureResponse(
+    [SwaggerSchema("Files of the requested Github repository")] IList<string> Files
+) : BasePluginResponse;

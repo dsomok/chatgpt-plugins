@@ -23,11 +23,17 @@ public class GithubPluginController : ControllerBase
 
     [HttpGet]
     [Route("structure")]
-    [ProducesResponseType(200, Type = typeof(StructureResponse))]
-    [SwaggerOperation(OperationId = "QueryGithubRepositoryStructure", Summary = "Retrieves the github repository file structure to analyze it and be able to query only relevant files")]
-    public async Task<IActionResult> GetRepositoryStructure(string link, CancellationToken cancellationToken)
+    [SwaggerOperation(
+        OperationId = "QueryGithubRepositoryStructure",
+        Summary = "Retrieves the github repository file structure to analyze it and be able to query only relevant files"
+    )]
+    [SwaggerResponse(200, "Returns the github repository structure", typeof(StructureResponse))]
+    public async Task<IActionResult> GetRepositoryStructure(
+        [SwaggerParameter("Github repository URL", Required = true)] string repositoryUrl, 
+        CancellationToken cancellationToken
+    )
     {
-        var fileStructure = await _mediator.Send(new GithubRepositoryStructureRequest(link), cancellationToken);
+        var fileStructure = await _mediator.Send(new GithubRepositoryStructureRequest(repositoryUrl), cancellationToken);
         var filePaths = fileStructure.Select(f => f.Path).ToList();
 
         var response = new StructureResponse(filePaths)
@@ -41,11 +47,14 @@ public class GithubPluginController : ControllerBase
 
     [HttpPost]
     [Route("query")]
-    [ProducesResponseType(200, Type = typeof(QueryResponse))]
-    [SwaggerOperation(OperationId = "QueryGithubRepositoryFileContents", Summary = "Retrieves github repository file contents, possibly filtered by names")]
+    [SwaggerOperation(
+        OperationId = "QueryGithubRepositoryFileContents",
+        Summary = "Retrieves github repository file contents, possibly filtered by names"
+    )]
+    [SwaggerResponse(200, "Returns the contents of the requested files", typeof(QueryResponse))]
     public async Task<IActionResult> QueryRepositoryFiles([FromBody] QueryRequest request, CancellationToken cancellationToken)
     {
-        var files = await _mediator.Send(new GithubRepositoryFilesRequest(request.Url, request.FilePaths), cancellationToken);
+        var files = await _mediator.Send(new GithubRepositoryFilesRequest(request.RepositoryUrl, request.FilePaths), cancellationToken);
         var response = new QueryResponse(files);
         return Ok(response);
     }
