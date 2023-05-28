@@ -29,12 +29,15 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
         var repository = await _githubClient.Repository.Get(githubLink.Owner, githubLink.RepositoryName);
         
         var commits = await _githubClient.Repository.Commit.GetAll(repository.Id, new ApiOptions { PageSize = 1, PageCount = 1 });
-        var latestCommit = commits.First();
+        var latestCommit = commits[0];
 
-        var treeResponse = await _githubClient.Git.Tree.GetRecursive(githubLink.Owner, githubLink.RepositoryName, latestCommit!.Sha);
+        var treeResponse = await _githubClient.Git.Tree.GetRecursive(repository.Id, latestCommit!.Sha);
         foreach (var treeItem in treeResponse.Tree.Where(IsIncluded))
         {
-            yield return treeItem.Path;
+            if (string.IsNullOrEmpty(githubLink.RelativePath) || treeItem.Path.StartsWith(githubLink.RelativePath))
+            {
+                yield return treeItem.Path;
+            }
         }
     }
 

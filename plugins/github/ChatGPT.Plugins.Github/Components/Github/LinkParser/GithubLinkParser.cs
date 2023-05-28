@@ -25,6 +25,7 @@ internal class GithubLinkParser : IGithubLinkParser
         if (repositorySegments.Length >= 6)
         {
             relativePath = repositorySegments.Skip(5).Aggregate(string.Empty, (accumulated, segment) => accumulated + segment);
+            relativePath = relativePath.Trim('/');
         }
 
         return new GithubLink(owner, repositoryName, branch, relativePath);

@@ -61,13 +61,17 @@ internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepos
         var charactersLeft = MAX_CHARACTERS_COUNT;
         await Parallel.ForEachAsync(filePaths, parallelOptions, async (filePath, ct) =>
         {
-            var rawContentBytes = await _githubClient.Repository.Content.GetRawContent(githubLink.Owner, githubLink.RepositoryName, filePath);
+            var fullPath = string.IsNullOrEmpty(githubLink.RelativePath)
+                ? filePath
+                : $"{githubLink.RelativePath}/{filePath}";
+
+            var rawContentBytes = await _githubClient.Repository.Content.GetRawContent(githubLink.Owner, githubLink.RepositoryName, fullPath);
             var rawContent = Encoding.UTF8.GetString(rawContentBytes);
             var fileContent = await ProcessFileContentAsync(rawContent, ct);
 
             if (fileContent.Length < charactersLeft)
             {
-                githubFiles.Add(new GithubFile(filePath, fileContent));
+                githubFiles.Add(new GithubFile(fullPath, fileContent));
                 Interlocked.Add(ref charactersLeft, -1 * fileContent.Length);
             }
         });
