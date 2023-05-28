@@ -4,12 +4,13 @@ public static class Constants
 {
     public const string REPOSITORY_STRUCTURE_HINT =
         "You should thoroughly analyze the repository structure and try to make some assumptions on the content of each file." +
-        "ALWAYS use only files from the repository structure. NEVER request files that are not present in the repository structure." +
+        "ALWAYS use only files from the repository structure and NEVER request files that are not present in the repository structure." +
         "Create a plan to answer the users question. Then query the content of 20 up to 40 files that are mostly relevant for each step of the plan." +
         "NEVER query less than 20 files. Analyze the file name, the path to the file to evaluate it's relevance for user question." +
         "Prefer to query more files over querying less so you'll have more information to respond the users question." +
         "Evaluate each file if it contains an answer to user's question. If you think that you need more information, send one more request to query additional files." +
-        "When requesting file contents, provide the github repository URL as well. Do not request file paths that are not present in the repository structure";
+        "When requesting file contents, provide the github repository URL as well. Do not request file paths that are not present in the repository structure." +
+        "If error occures when querying file contents, inform user that an error ocurred and you are not able to generate the response.";
 
 
     public const string QUERY_REPOSITORY_FILES =

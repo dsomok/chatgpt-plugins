@@ -36,7 +36,7 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
         {
             if (string.IsNullOrEmpty(githubLink.RelativePath) || treeItem.Path.StartsWith(githubLink.RelativePath))
             {
-                yield return treeItem.Path;
+                yield return treeItem.Path.Replace(githubLink.RelativePath ?? string.Empty, string.Empty);
             }
         }
     }

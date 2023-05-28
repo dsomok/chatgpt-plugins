@@ -3,7 +3,7 @@
   "name_for_human": "Github Plugin",
   "name_for_model": "github",
   "description_for_human": "Link a GitHub repository with the C# project and ask about any aspect of the code.",
-  "description_for_model": "This plugin analyzes the github repository provided by the user and then tries to answer users questions related to this repository. It accepts the link to the repository from the user. The first step is to analyze the structure of the repository. The response is the list of all files that are present in the repository. Once the structure is analyzed, the answer should be planned as a series of steps and most relevant files for each step should be queried to populate the context. NEVER request less than 20 files. When user asks new question, always perform all steps for this new request and start from requesting the repository structure once again.",
+  "description_for_model": "This plugin analyzes the github repository provided by the user and then tries to answer users questions related to this repository. It accepts the link to the repository from the user. The first step is to analyze the structure of the repository. The response is the list of all files that are present in the repository. Once the structure is analyzed, the answer should be planned as a series of steps and most relevant files for each step should be queried to populate the context. NEVER request less than 20 files. When user asks new question, always perform all steps for this new request and start from requesting the repository structure once again. If error occures when querying file contents, inform the user that an error ocurred and you are not able to generate the response.",
   "auth": {
     "type": "none"
   },
