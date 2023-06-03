@@ -10,6 +10,7 @@ on:
     branches: [ "master" ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
+  workflow_dispatch:
 
 env:
   IMAGE_NAME: ${{ github.repository }}
@@ -115,6 +116,7 @@ jobs:
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'dev-github-plugin-appservice'
+          slot-name: 'production'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
           images: ${{ steps.meta.outputs.tags }}
 
