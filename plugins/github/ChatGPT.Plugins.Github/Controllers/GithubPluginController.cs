@@ -13,11 +13,13 @@ namespace ChatGPT.Plugins.Github.Controllers;
 public class GithubPluginController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly ILogger _logger;
 
 
-    public GithubPluginController(IMediator mediator)
+    public GithubPluginController(IMediator mediator, ILogger<GithubPluginController> logger)
     {
         _mediator = mediator;
+        _logger = logger;
     }
     
 
@@ -54,12 +56,26 @@ public class GithubPluginController : ControllerBase
     [SwaggerResponse(200, "Returns the contents of the requested files", typeof(QueryResponse))]
     public async Task<IActionResult> QueryRepositoryFiles([FromBody] QueryRequest request, CancellationToken cancellationToken)
     {
-        var files = await _mediator.Send(new GithubRepositoryFilesRequest(request.RepositoryUrl, request.FilePaths), cancellationToken);
-        var response = new QueryResponse(files)
+        try
         {
-            AssistantHint = QUERY_REPOSITORY_FILES
-        };
+            var files = await _mediator.Send(new GithubRepositoryFilesRequest(request.RepositoryUrl, request.FilePaths), cancellationToken);
+            var response = new QueryResponse(files)
+            {
+                AssistantHint = QUERY_REPOSITORY_FILES
+            };
 
-        return Ok(response);
+            return Ok(response);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to query repository files");
+
+            var response = new ErrorResponse
+            {
+                AssistantHint = QUERY_REPOSITORY_FILES_ERROR
+            };
+
+            return Ok(response);
+        }
     }
 }
