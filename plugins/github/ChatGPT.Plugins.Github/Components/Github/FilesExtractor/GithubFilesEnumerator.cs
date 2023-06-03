@@ -36,7 +36,7 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
         {
             if (string.IsNullOrEmpty(githubLink.RelativePath) || treeItem.Path.StartsWith(githubLink.RelativePath))
             {
-                yield return treeItem.Path.Replace(githubLink.RelativePath ?? string.Empty, string.Empty).Trim('/');
+                yield return GetFilePath(treeItem, githubLink);
             }
         }
     }
@@ -44,5 +44,16 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
     private bool IsIncluded(TreeItem treeItem)
     {
         return _includedFilePatterns.Any(pattern => Regex.IsMatch(treeItem.Path, pattern));
+    }
+
+    private string GetFilePath(TreeItem treeItem, GithubLink githubLink)
+    {
+        var path = treeItem.Path;
+        if (!string.IsNullOrEmpty(githubLink.RelativePath))
+        {
+            path = path.Replace(githubLink.RelativePath, string.Empty);
+        }
+
+        return path.Trim('/');
     }
 }
