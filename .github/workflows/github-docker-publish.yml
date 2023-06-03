@@ -1,4 +1,4 @@
-name: Push Docker Image
+name: Build and Deploy
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -35,7 +35,7 @@ jobs:
         
       - name: Get current date
         id: date
-        run: echo "::set-output name=date::$(date +'%Y%m%d%H%M%S')"
+        run: echo "date=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
@@ -107,7 +107,7 @@ jobs:
     needs: build
     environment:
       name: 'Development'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      url: ${{ env.SWAGGER_URL }}
 
     steps:
       - name: Deploy to Azure Web App
@@ -123,7 +123,7 @@ jobs:
     needs: deploy-dev
     environment:
       name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      url: ${{ env.SWAGGER_URL }}
 
     steps:
       - name: Deploy to Azure Web App
