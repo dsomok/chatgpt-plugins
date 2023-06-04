@@ -13,7 +13,7 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
     {
         @"^.+\.cs$",
         @"^.+\.md$",
-        @"^.+\.json",
+        // @"^.+\.json",
         @"^.+\.txt$"
     };
 

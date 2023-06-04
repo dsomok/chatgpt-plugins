@@ -19,11 +19,14 @@ internal class OrderingProcessor : IResponseProcessor
                 return IsCsharpFile(y) ? 0 : 1;
             }
 
+            if (IsCsharpFile(y))
+            {
+                return -1;
+            }
+
             if (IsMarkdownFile(x))
             {
-                return IsCsharpFile(y)
-                    ? -1
-                    : IsMarkdownFile(y) ? 0 : 1;
+                return IsMarkdownFile(y) ? 0 : 1;
             }
 
             return 0;
