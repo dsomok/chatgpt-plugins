@@ -3,13 +3,9 @@ name: Deploy to Production
 on:
   workflow_dispatch:
     inputs:
-      run-number:
+      run-id:
         type: string
         description: Number of the Build and Deploy workflow run
-
-
-env:
-  IMAGE_NAME: ${{ github.repository }}
 
 
 jobs:
@@ -28,7 +24,7 @@ jobs:
         with:        
           workflow: workflow_name.yml
           workflow_conclusion: success
-          run_number: ${{ github.event.inputs.run-number }}
+          run_id: ${{ github.event.inputs.run-id }}
           name: docker-image
           if_no_artifact_found: fail
         
