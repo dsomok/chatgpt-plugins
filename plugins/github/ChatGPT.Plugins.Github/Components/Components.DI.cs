@@ -14,7 +14,6 @@ internal static class Dependencies
                        .AddSingleton<IFileContentProcessor, UsingsRemover>()
                        .AddSingleton<IFileContentProcessor, FileContentMinifier>()
                        .AddSingleton<IResponseProcessor, ResponseLengthHardLimitProcessor>()
-                       .AddSingleton<IResponseProcessor, OrderingProcessor>()
                        .AddSingleton<IRepositoryStructureReducer, IgnoreInterfacesRepositoryStructureReducer>()
                        .AddSingleton<IRepositoryStructureReducer, HardLimitRepositoryStructureReducer>()
                        .AddSingleton<IGithubFilesEnumerator, GithubFilesEnumerator>()

@@ -2,6 +2,7 @@
 
 namespace ChatGPT.Plugins.Github.Components.Response;
 
+// Currently not used
 internal class OrderingProcessor : IResponseProcessor
 {
     public Task<IList<GithubFile>> ProcessResponseAsync(IList<GithubFile> files, CancellationToken cancellationToken)
