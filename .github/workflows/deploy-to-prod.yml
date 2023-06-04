@@ -33,7 +33,6 @@ jobs:
         run: cat /docker-image/artifacts/image.txt >> $GITHUB_OUTPUT
         
       - name: Print docker-image
-        id: image
         run: echo ${{ steps.image.outputs.image }}
         
       - name: Deploy to Azure Web App
