@@ -32,7 +32,7 @@ jobs:
         
       - name: Get docker-image
         id: image
-        run: cat ./docker-image/image.txt >> $GITHUB_OUTPUT
+        run: cat ./image.txt >> $GITHUB_OUTPUT
         
       - name: Print docker-image
         run: echo ${{ steps.image.outputs.image }}
