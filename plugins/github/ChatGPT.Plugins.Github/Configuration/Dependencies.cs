@@ -41,7 +41,7 @@ public static class Dependencies
                     options.SwaggerDoc("v1", new OpenApiInfo
                     {
                         Version = "v1",
-                        Title = "Github Plugin",
+                        Title = "AskTheCode Plugin",
                         Description = "Plugin to explain the code from Github and assist with its usage. Works with the provided Github file link."
                     });
 
