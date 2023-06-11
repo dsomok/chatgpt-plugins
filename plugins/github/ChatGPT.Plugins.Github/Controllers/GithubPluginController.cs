@@ -8,7 +8,7 @@ using static ChatGPT.Plugins.Github.Constants;
 
 namespace ChatGPT.Plugins.Github.Controllers;
 
-[Route("api/chatgpt-plugins/github")]
+[Route("api/chatgpt-plugins/askthecode")]
 [ApiController]
 public class GithubPluginController : ControllerBase
 {

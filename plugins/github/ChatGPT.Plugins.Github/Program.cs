@@ -8,7 +8,7 @@ var app = builder.Build();
 app.UseSwagger()
    .UseSwaggerUI(config =>
    {
-       config.SwaggerEndpoint("v1/swagger.yaml", "Github Plugin");
+       config.SwaggerEndpoint("v1/swagger.yaml", "AskTheCode Plugin");
    })
    .UseStaticFiles();
 
