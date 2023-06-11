@@ -10,13 +10,13 @@ namespace ChatGPT.Plugins.Github.Controllers;
 
 [Route("api/chatgpt-plugins/askthecode")]
 [ApiController]
-public class GithubPluginController : ControllerBase
+public class AskTheCodePluginController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ILogger _logger;
 
 
-    public GithubPluginController(IMediator mediator, ILogger<GithubPluginController> logger)
+    public AskTheCodePluginController(IMediator mediator, ILogger<AskTheCodePluginController> logger)
     {
         _mediator = mediator;
         _logger = logger;
