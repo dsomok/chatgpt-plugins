@@ -9,7 +9,7 @@
   },
   "api": {
     "type": "openapi",
-    "url": "https://askthecode.dev.dsomok.online/swagger/v1/swagger.yaml",
+    "url": "https://askthecode.dev.dsomok.online/swagger/v1.25/swagger.yaml",
     "is_user_authenticated": false
   },
   "logo_url": "https://askthecode.dev.dsomok.online/logo.png",

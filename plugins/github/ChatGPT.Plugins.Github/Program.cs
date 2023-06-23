@@ -1,3 +1,4 @@
+using ChatGPT.Plugins.Github;
 using ChatGPT.Plugins.Github.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +9,7 @@ var app = builder.Build();
 app.UseSwagger()
    .UseSwaggerUI(config =>
    {
-       config.SwaggerEndpoint("v1/swagger.yaml", "AskTheCode Plugin");
+       config.SwaggerEndpoint($"{Constants.Version}/swagger.yaml", "AskTheCode Plugin");
    })
    .UseStaticFiles();
 
