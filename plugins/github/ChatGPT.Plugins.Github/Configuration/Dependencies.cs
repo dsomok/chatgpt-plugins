@@ -38,9 +38,9 @@ public static class Dependencies
         services.AddEndpointsApiExplorer()
                 .AddSwaggerGen(options =>
                 {
-                    options.SwaggerDoc("v1", new OpenApiInfo
+                    options.SwaggerDoc(Constants.Version, new OpenApiInfo
                     {
-                        Version = "v1.25",
+                        Version = Constants.Version,
                         Title = "AskTheCode Plugin",
                         Description = "Plugin to explain the code from Github and assist with its usage. Works with the provided Github file link."
                     });

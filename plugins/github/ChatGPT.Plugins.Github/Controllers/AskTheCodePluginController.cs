@@ -4,7 +4,7 @@ using ChatGPT.Plugins.Github.Models.DTO.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using static ChatGPT.Plugins.Github.Constants;
+using static ChatGPT.Plugins.Github.Prompts;
 
 namespace ChatGPT.Plugins.Github.Controllers;
 
