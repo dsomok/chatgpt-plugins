@@ -4,11 +4,11 @@ public static class Prompts
 {
     public const string REPOSITORY_STRUCTURE_HINT =
         "You should thoroughly analyze the repository structure and try to make some assumptions on the content of each file. " +
-        "ALWAYS use only files from the repository structure and NEVER request files that are not present in the repository structure. " +
         "Try to elaborate the files which contain examples. Consider them as highly relevant for users question. " +
         "Query the code files first. After that do a separate query for markdown files with docs if they exist. " +
-        "When requesting file contents, provide the github repository URL as well. Do not request file paths that are not present in the repository structure. " +
-        "If error occures when querying file contents, inform user that an error ocurred and you are not able to generate the response. ";
+        "When requesting file contents, provide the github repository URL as well. Before querying the file path, make sure that it exists in the repository structure. " +
+        "If error occures when querying file contents, inform user that an error ocurred and you are not able to generate the response. " +
+        "Do not perform more than 3 retries of querying the repository structure.";
 
 
     public const string QUERY_REPOSITORY_FILES =

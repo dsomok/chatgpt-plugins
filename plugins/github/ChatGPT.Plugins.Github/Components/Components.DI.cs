@@ -1,4 +1,5 @@
 ﻿using ChatGPT.Plugins.Github.Components.Files;
+using ChatGPT.Plugins.Github.Components.Files.CSharp;
 using ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
 using ChatGPT.Plugins.Github.Components.Github.LinkParser;
 using ChatGPT.Plugins.Github.Components.Repository;

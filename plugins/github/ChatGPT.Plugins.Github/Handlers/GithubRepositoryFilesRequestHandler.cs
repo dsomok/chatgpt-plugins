@@ -67,7 +67,7 @@ internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepos
 
             var rawContentBytes = await _githubClient.Repository.Content.GetRawContent(githubLink.Owner, githubLink.RepositoryName, fullPath);
             var rawContent = Encoding.UTF8.GetString(rawContentBytes);
-            var fileContent = await ProcessFileContentAsync(rawContent, ct);
+            var fileContent = await ProcessFileContentAsync(fullPath, rawContent, ct);
 
             if (fileContent.Length < charactersLeft)
             {
@@ -79,9 +79,9 @@ internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepos
         return await ProcessResponseAsync(githubFiles, cancellationToken);
     }
 
-    private async Task<string> ProcessFileContentAsync(string content, CancellationToken cancellationToken)
+    private async Task<string> ProcessFileContentAsync(string fullPath, string content, CancellationToken cancellationToken)
     {
-        foreach (var processor in _fileContentProcessors)
+        foreach (var processor in _fileContentProcessors.Where(processor => processor.CanProcessFile(fullPath)))
         {
             content = await processor.ProcessFileContentAsync(content, cancellationToken);
         }

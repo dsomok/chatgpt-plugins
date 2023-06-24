@@ -9,12 +9,13 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
 {
     private readonly IGitHubClient _githubClient;
 
-    private readonly List<string> _includedFilePatterns = new()
+    private readonly List<string> _excludedFileExtensions = new()
     {
-        @"^.+\.cs$",
-        @"^.+\.md$",
-        // @"^.+\.json",
-        @"^.+\.txt$"
+        @"exe",
+        @"bin",
+        @"dll",
+        @"csproj",
+        @"sln"
     };
 
 
@@ -43,7 +44,7 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
 
     private bool IsIncluded(TreeItem treeItem)
     {
-        return _includedFilePatterns.Any(pattern => Regex.IsMatch(treeItem.Path, pattern));
+        return _excludedFileExtensions.All(extension => !Regex.IsMatch(treeItem.Path, $@"^.+\.{extension}"));
     }
 
     private string GetFilePath(TreeItem treeItem, GithubLink githubLink)
