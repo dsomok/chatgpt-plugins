@@ -16,7 +16,7 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
         @"^.+\.dll$",
         @"^.+\.csproj$",
         @"^.+\.sln$",
-        @"*ignore$"
+        @"^.+ignore$"
     };
 
 
