@@ -31,7 +31,9 @@ internal class GithubRepositoryStructureRequestHandler : IRequestHandler<GithubR
     public async Task<IList<GithubFileMetadata>> Handle(GithubRepositoryStructureRequest request, CancellationToken cancellationToken)
     {
         var githubLink = _githubLinkParser.Parse(request.GithubUrl);
-        var repositoryFiles = _githubFilesEnumerator.EnumerateRepositoryFilesAsync(githubLink, cancellationToken);
+        var repositoryFiles = _githubFilesEnumerator.EnumerateRepositoryFilesAsync(
+            githubLink, request.FileExtensions, cancellationToken);
+
         var filePaths = await repositoryFiles.ToListAsync(cancellationToken);
 
         var repositoryStructure = new GithubRepositoryStructure(filePaths);
@@ -64,4 +66,4 @@ internal class GithubRepositoryStructureRequestHandler : IRequestHandler<GithubR
     }
 }
 
-public record GithubRepositoryStructureRequest(string GithubUrl) : IRequest<IList<GithubFileMetadata>>;
+public record GithubRepositoryStructureRequest(string GithubUrl, IList<string> FileExtensions) : IRequest<IList<GithubFileMetadata>>;

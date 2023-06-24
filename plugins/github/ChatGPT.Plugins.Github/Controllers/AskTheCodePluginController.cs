@@ -31,11 +31,13 @@ public class AskTheCodePluginController : ControllerBase
     )]
     [SwaggerResponse(200, "Returns the github repository structure", typeof(StructureResponse))]
     public async Task<IActionResult> GetRepositoryStructure(
-        [SwaggerParameter("Github repository URL", Required = true)] string repositoryUrl, 
+        [SwaggerParameter("Github repository URL", Required = true)] string repositoryUrl,
+        [SwaggerParameter("Comma-separated list of file extensions to retrieve")] string extensions,
         CancellationToken cancellationToken
     )
     {
-        var fileStructure = await _mediator.Send(new GithubRepositoryStructureRequest(repositoryUrl), cancellationToken);
+        var fileExtensions = extensions.Split(",", StringSplitOptions.TrimEntries);
+        var fileStructure = await _mediator.Send(new GithubRepositoryStructureRequest(repositoryUrl, fileExtensions), cancellationToken);
         var filePaths = fileStructure.Select(f => f.Path).ToList();
 
         var response = new StructureResponse(filePaths)

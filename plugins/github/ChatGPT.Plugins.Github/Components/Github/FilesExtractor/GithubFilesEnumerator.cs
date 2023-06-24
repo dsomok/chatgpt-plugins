@@ -9,13 +9,14 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
 {
     private readonly IGitHubClient _githubClient;
 
-    private readonly List<string> _excludedFileExtensions = new()
+    private readonly List<string> _excludedFilePatterns = new()
     {
-        @"exe",
-        @"bin",
-        @"dll",
-        @"csproj",
-        @"sln"
+        @"^.+\.exe$",
+        @"^.+\.bin$",
+        @"^.+\.dll$",
+        @"^.+\.csproj$",
+        @"^.+\.sln$",
+        @"*ignore$"
     };
 
 
@@ -25,7 +26,16 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
     }
 
 
-    public async IAsyncEnumerable<string> EnumerateRepositoryFilesAsync(GithubLink githubLink, [EnumeratorCancellation] CancellationToken cancellationToken)
+    public IAsyncEnumerable<string> EnumerateRepositoryFilesAsync(GithubLink githubLink, CancellationToken cancellationToken)
+    {
+        return EnumerateRepositoryFilesAsync(githubLink, null, cancellationToken);
+    }
+
+    public async IAsyncEnumerable<string> EnumerateRepositoryFilesAsync(
+        GithubLink githubLink,
+        IList<string> fileExtensions,
+        [EnumeratorCancellation] CancellationToken cancellationToken
+    )
     {
         var repository = await _githubClient.Repository.Get(githubLink.Owner, githubLink.RepositoryName);
         
@@ -33,7 +43,10 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
         var latestCommit = commits[0];
 
         var treeResponse = await _githubClient.Git.Tree.GetRecursive(repository.Id, latestCommit!.Sha);
-        foreach (var treeItem in treeResponse.Tree.Where(IsIncluded))
+        var treeItems = treeResponse.Tree.Where(IsIncluded)
+                                    .Where(treeItem => IfOfSpecifiedExtension(treeItem, fileExtensions));
+
+        foreach (var treeItem in treeItems)
         {
             if (string.IsNullOrEmpty(githubLink.RelativePath) || treeItem.Path.StartsWith(githubLink.RelativePath))
             {
@@ -44,7 +57,17 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
 
     private bool IsIncluded(TreeItem treeItem)
     {
-        return _excludedFileExtensions.All(extension => !Regex.IsMatch(treeItem.Path, $@"^.+\.{extension}"));
+        return treeItem.Size > 0 && _excludedFilePatterns.All(pattern => !Regex.IsMatch(treeItem.Path, pattern));
+    }
+
+    private bool IfOfSpecifiedExtension(TreeItem treeItem, IList<string> extensions)
+    {
+        if (extensions == null || extensions.Count == 0)
+        {
+            return true;
+        }
+
+        return extensions.Any(treeItem.Path.EndsWith);
     }
 
     private string GetFilePath(TreeItem treeItem, GithubLink githubLink)
