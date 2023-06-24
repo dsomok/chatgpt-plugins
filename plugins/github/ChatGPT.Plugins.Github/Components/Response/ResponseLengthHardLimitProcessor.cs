@@ -13,6 +13,12 @@ internal class ResponseLengthHardLimitProcessor : IResponseProcessor
 
         foreach (var file in files)
         {
+            if (!file.IsValid)
+            {
+                result.Add(file);
+                continue;
+            }
+
             if (totalContentSize + file.Content.Length <= MAX_RESPONSE_CHARACTERS)
             {
                 totalContentSize += file.Content.Length;
