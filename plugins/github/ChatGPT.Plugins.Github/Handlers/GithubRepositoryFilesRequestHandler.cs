@@ -65,14 +65,21 @@ internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepos
                 ? filePath
                 : $"{githubLink.RelativePath}/{filePath}";
 
-            var rawContentBytes = await _githubClient.Repository.Content.GetRawContent(githubLink.Owner, githubLink.RepositoryName, fullPath);
-            var rawContent = Encoding.UTF8.GetString(rawContentBytes);
-            var fileContent = await ProcessFileContentAsync(fullPath, rawContent, ct);
-
-            if (fileContent.Length < charactersLeft)
+            try
             {
-                githubFiles.Add(new GithubFile(fullPath, fileContent));
-                Interlocked.Add(ref charactersLeft, -1 * fileContent.Length);
+                var rawContentBytes = await _githubClient.Repository.Content.GetRawContent(githubLink.Owner, githubLink.RepositoryName, fullPath);
+                var rawContent = Encoding.UTF8.GetString(rawContentBytes);
+                var fileContent = await ProcessFileContentAsync(fullPath, rawContent, ct);
+
+                if (fileContent.Length < charactersLeft)
+                {
+                    githubFiles.Add(new GithubFile(fullPath, fileContent, null));
+                    Interlocked.Add(ref charactersLeft, -1 * fileContent.Length);
+                }
+            }
+            catch
+            {
+                githubFiles.Add(new GithubFile(fullPath, null, "File does not exist"));
             }
         });
 

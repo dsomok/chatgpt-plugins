@@ -60,7 +60,11 @@ public class AskTheCodePluginController : ControllerBase
     {
         try
         {
-            var files = await _mediator.Send(new GithubRepositoryFilesRequest(request.RepositoryUrl, request.FilePaths), cancellationToken);
+            var files = await _mediator.Send(
+                new GithubRepositoryFilesRequest(request.RepositoryUrl, request.FilePaths),
+                cancellationToken
+            );
+
             var response = new QueryResponse(files)
             {
                 AssistantHint = QUERY_REPOSITORY_FILES

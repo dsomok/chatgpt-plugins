@@ -34,7 +34,7 @@ internal class GithubRepositoryStructureRequestHandler : IRequestHandler<GithubR
         var repositoryFiles = _githubFilesEnumerator.EnumerateRepositoryFilesAsync(
             githubLink, request.FileExtensions, cancellationToken);
 
-        var filePaths = await repositoryFiles.Take(500).ToListAsync(cancellationToken);
+        var filePaths = await repositoryFiles.ToListAsync(cancellationToken);
 
         var repositoryStructure = new GithubRepositoryStructure(filePaths);
         repositoryStructure = await ReduceRepositoryStructureIfNeededAsync(repositoryStructure, cancellationToken);
