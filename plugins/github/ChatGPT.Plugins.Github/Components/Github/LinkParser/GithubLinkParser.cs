@@ -6,6 +6,11 @@ internal class GithubLinkParser : IGithubLinkParser
 {
     public GithubLink Parse(string githubLink)
     {
+        if (githubLink.EndsWith(".git"))
+        {
+            githubLink = githubLink.Replace(".git", string.Empty);
+        }
+
         var repositorySegments = new Uri(githubLink).Segments;
         if (repositorySegments.Length < 3)
         {
