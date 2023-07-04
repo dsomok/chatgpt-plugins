@@ -1,14 +1,18 @@
 ﻿using ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
 using ChatGPT.Plugins.Github.Components.Github.LinkParser;
 using ChatGPT.Plugins.Github.Components.Repository;
+using ChatGPT.Plugins.Github.Handlers.Models;
 using ChatGPT.Plugins.Github.Models;
 using MediatR;
+using static ChatGPT.Plugins.Github.Prompts;
 
 namespace ChatGPT.Plugins.Github.Handlers;
 
-internal class GithubRepositoryStructureRequestHandler : IRequestHandler<GithubRepositoryStructureRequest, IList<GithubFileMetadata>>
+internal class GithubRepositoryStructureRequestHandler
+    : IRequestHandler<GithubRepositoryStructureRequest, HandlerResponse<GithubRepositoryStructure>>
 {
     private const int MAX_CHARACTERS_COUNT = 93000;
+    private const int MAX_FILES_COUNT = 500;
 
     private readonly IGithubLinkParser _githubLinkParser;
     private readonly IGithubFilesEnumerator _githubFilesEnumerator;
@@ -28,21 +32,48 @@ internal class GithubRepositoryStructureRequestHandler : IRequestHandler<GithubR
         _logger = logger;
     }
 
-    public async Task<IList<GithubFileMetadata>> Handle(GithubRepositoryStructureRequest request, CancellationToken cancellationToken)
+    public async Task<HandlerResponse<GithubRepositoryStructure>> Handle(
+        GithubRepositoryStructureRequest request, CancellationToken cancellationToken
+    )
     {
         var githubLink = _githubLinkParser.Parse(request.GithubUrl);
+
+        var repositoryFilesStructure = await GetRepositoryFilesStructureAsync(githubLink, request, cancellationToken);
+        repositoryFilesStructure = await ReduceRepositoryStructureIfNeededAsync(repositoryFilesStructure, cancellationToken);
+
+        if (repositoryFilesStructure.FilePaths.Count <= MAX_FILES_COUNT)
+        {
+            return new HandlerResponse<GithubRepositoryStructure>(
+                repositoryFilesStructure, null, REPOSITORY_STRUCTURE_HINT
+            );
+        }
+
+        var repositoryDirectoriesStructure = await GetRepositoryDirectoriesStructureAsync(githubLink, cancellationToken);
+        repositoryDirectoriesStructure.AddFiles(repositoryFilesStructure.RootFiles);
+
+        return new HandlerResponse<GithubRepositoryStructure>(
+            repositoryDirectoriesStructure, null, REPOSITORY_DIRECTORIES_STRUCTURE_HINT
+        );
+    }
+
+    private async Task<GithubRepositoryStructure> GetRepositoryFilesStructureAsync(
+        GithubLink githubLink,
+        GithubRepositoryStructureRequest request,
+        CancellationToken cancellationToken
+    )
+    {
         var repositoryFiles = _githubFilesEnumerator.EnumerateRepositoryFilesAsync(
-            githubLink, request.FileExtensions, cancellationToken);
+            githubLink, request.RelativePaths, request.FileExtensions, cancellationToken);
 
         var filePaths = await repositoryFiles.ToListAsync(cancellationToken);
 
-        var repositoryStructure = new GithubRepositoryStructure(filePaths);
-        repositoryStructure = await ReduceRepositoryStructureIfNeededAsync(repositoryStructure, cancellationToken);
-
-        return repositoryStructure.FilesMetadata;
+        return new GithubRepositoryStructure(filePaths);
     }
 
-    private async Task<GithubRepositoryStructure> ReduceRepositoryStructureIfNeededAsync(GithubRepositoryStructure repositoryStructure, CancellationToken cancellationToken)
+    private async Task<GithubRepositoryStructure> ReduceRepositoryStructureIfNeededAsync(
+        GithubRepositoryStructure repositoryStructure,
+        CancellationToken cancellationToken
+    )
     {
         if (repositoryStructure.FilePathsCharactersCount <= MAX_CHARACTERS_COUNT)
         {
@@ -64,6 +95,20 @@ internal class GithubRepositoryStructureRequestHandler : IRequestHandler<GithubR
 
         return repositoryStructure;
     }
+
+    private async Task<GithubRepositoryStructure> GetRepositoryDirectoriesStructureAsync(
+        GithubLink githubLink,
+        CancellationToken cancellationToken
+    )
+    {
+        var repositoryDirectories = _githubFilesEnumerator.EnumerateRepositoryDirectoriesAsync(
+            githubLink, cancellationToken);
+
+        var filePaths = await repositoryDirectories.ToListAsync(cancellationToken);
+
+        return new GithubRepositoryStructure(filePaths);
+    }
 }
 
-public record GithubRepositoryStructureRequest(string GithubUrl, IList<string> FileExtensions) : IRequest<IList<GithubFileMetadata>>;
+public record GithubRepositoryStructureRequest(string GithubUrl, IList<string> RelativePaths, IList<string> FileExtensions)
+    : IRequest<HandlerResponse<GithubRepositoryStructure>>;

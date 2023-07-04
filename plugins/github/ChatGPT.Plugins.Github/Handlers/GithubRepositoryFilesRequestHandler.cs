@@ -3,13 +3,15 @@ using ChatGPT.Plugins.Github.Components.Files;
 using ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
 using ChatGPT.Plugins.Github.Components.Github.LinkParser;
 using ChatGPT.Plugins.Github.Components.Response;
+using ChatGPT.Plugins.Github.Handlers.Models;
 using ChatGPT.Plugins.Github.Models;
 using MediatR;
 using Octokit;
+using static ChatGPT.Plugins.Github.Prompts;
 
 namespace ChatGPT.Plugins.Github.Handlers;
 
-internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepositoryFilesRequest, IList<GithubFile>>
+internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepositoryFilesRequest, HandlerResponse<IList<GithubFile>>>
 {
     private const int MAX_CHARACTERS_COUNT = 98000;
 
@@ -34,14 +36,22 @@ internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepos
         _responseProcessors = responseProcessors;
     }
 
-    public async Task<IList<GithubFile>> Handle(GithubRepositoryFilesRequest request, CancellationToken cancellationToken)
+    public async Task<HandlerResponse<IList<GithubFile>>> Handle(GithubRepositoryFilesRequest request, CancellationToken cancellationToken)
     {
-        var githubLink = _githubLinkParser.Parse(request.GithubUrl);
-        var filesStream = request.Files != null && request.Files.Any()
-            ? request.Files.ToAsyncEnumerable()
-            : _githubFilesEnumerator.EnumerateRepositoryFilesAsync(githubLink, cancellationToken);
+        try
+        {
+            var githubLink = _githubLinkParser.Parse(request.GithubUrl);
+            var filesStream = request.Files != null && request.Files.Any()
+                ? request.Files.ToAsyncEnumerable()
+                : _githubFilesEnumerator.EnumerateRepositoryFilesAsync(githubLink, cancellationToken);
 
-        return await BuildResponseAsync(githubLink, filesStream, cancellationToken);
+            var githubFiles = await BuildResponseAsync(githubLink, filesStream, cancellationToken);
+            return new HandlerResponse<IList<GithubFile>>(githubFiles, null, QUERY_REPOSITORY_FILES);
+        }
+        catch (Exception ex)
+        {
+            return new HandlerResponse<IList<GithubFile>>(null, ex.Message, QUERY_REPOSITORY_FILES_ERROR);
+        }
     }
 
     private async Task<IList<GithubFile>> BuildResponseAsync(
@@ -107,4 +117,5 @@ internal class GithubRepositoryFilesRequestHandler : IRequestHandler<GithubRepos
     }
 }
 
-public record GithubRepositoryFilesRequest(string GithubUrl, IList<string> Files = null) : IRequest<IList<GithubFile>>;
+public record GithubRepositoryFilesRequest(string GithubUrl, IList<string> Files = null)
+    : IRequest<HandlerResponse<IList<GithubFile>>>;

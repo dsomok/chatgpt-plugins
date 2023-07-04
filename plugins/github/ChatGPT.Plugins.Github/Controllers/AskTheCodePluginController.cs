@@ -4,7 +4,6 @@ using ChatGPT.Plugins.Github.Models.DTO.Responses;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
-using static ChatGPT.Plugins.Github.Prompts;
 
 namespace ChatGPT.Plugins.Github.Controllers;
 
@@ -21,33 +20,30 @@ public class AskTheCodePluginController : ControllerBase
         _mediator = mediator;
         _logger = logger;
     }
-    
 
-    [HttpGet]
+
+    [HttpPost]
     [Route("structure")]
     [SwaggerOperation(
         OperationId = "QueryGithubRepositoryStructure",
         Summary = "Retrieves the github repository file structure to analyze it and be able to query only relevant files"
     )]
     [SwaggerResponse(200, "Returns the github repository structure", typeof(StructureResponse))]
-    public async Task<IActionResult> GetRepositoryStructure(
-        [SwaggerParameter("Github repository URL", Required = true)] string repositoryUrl,
-        [SwaggerParameter("Comma-separated list of file extensions to retrieve")] string extensions,
-        CancellationToken cancellationToken
-    )
+    public async Task<IActionResult> GetRepositoryStructure([FromBody] StructureRequest request, CancellationToken cancellationToken)
     {
-        var fileExtensions = extensions.Split(",", StringSplitOptions.TrimEntries);
-        var fileStructure = await _mediator.Send(new GithubRepositoryStructureRequest(repositoryUrl, fileExtensions), cancellationToken);
-        var filePaths = fileStructure.Select(f => f.Path).ToList();
-
-        var response = new StructureResponse(filePaths)
+        var fileStructureResponse = await _mediator.Send(
+            new GithubRepositoryStructureRequest(request.RepositoryUrl, request.RelativePaths, request.Extensions),
+            cancellationToken
+        );
+        
+        var response = new StructureResponse(fileStructureResponse.Response.FilePaths)
         {
-            AssistantHint = REPOSITORY_STRUCTURE_HINT
+            AssistantHint = fileStructureResponse.AssistantHint
         };
 
         return Ok(response);
     }
-    
+
 
     [HttpPost]
     [Route("query")]
@@ -58,30 +54,15 @@ public class AskTheCodePluginController : ControllerBase
     [SwaggerResponse(200, "Returns the contents of the requested files", typeof(QueryResponse))]
     public async Task<IActionResult> QueryRepositoryFiles([FromBody] QueryRequest request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var files = await _mediator.Send(
-                new GithubRepositoryFilesRequest(request.RepositoryUrl, request.FilePaths),
-                cancellationToken
-            );
+        var filesResponse = await _mediator.Send(
+            new GithubRepositoryFilesRequest(request.RepositoryUrl, request.FilePaths),
+            cancellationToken
+        );
 
-            var response = new QueryResponse(files)
-            {
-                AssistantHint = QUERY_REPOSITORY_FILES
-            };
+        BasePluginResponse response = filesResponse.IsSuccess
+            ? new QueryResponse(filesResponse.Response) { AssistantHint = filesResponse.AssistantHint }
+            : new ErrorResponse { AssistantHint = filesResponse.AssistantHint };
 
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to query repository files");
-
-            var response = new ErrorResponse
-            {
-                AssistantHint = QUERY_REPOSITORY_FILES_ERROR
-            };
-
-            return Ok(response);
-        }
+        return Ok(response);
     }
 }

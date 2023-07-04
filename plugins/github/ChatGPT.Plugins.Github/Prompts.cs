@@ -11,6 +11,11 @@ public static class Prompts
         "If error occures when querying file contents, inform user that an error ocurred and you are not able to generate the response. " +
         "Do not perform more than 3 retries of querying the repository structure.";
 
+    public const string REPOSITORY_DIRECTORIES_STRUCTURE_HINT =
+        "The response contains the list of directories the repository has as well as the fiels in the root directory. " +
+        "You should thoroughly analyze the directories list and query for the files of those directories. You can query for as much directories as you need. " +
+        "Prefer to query more directories over less. To query the files of specified directories, you should use the same endpoint and provide the list via RelativePaths request property.";
+
 
     public const string QUERY_REPOSITORY_FILES =
         "When answering the new users question, you must request the repository structure once again prior requesting the contants of files. " +
