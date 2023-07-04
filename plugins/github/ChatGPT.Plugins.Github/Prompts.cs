@@ -12,9 +12,10 @@ public static class Prompts
         "Do not perform more than 3 retries of querying the repository structure.";
 
     public const string REPOSITORY_DIRECTORIES_STRUCTURE_HINT =
-        "The response contains the list of directories the repository has as well as the fiels in the root directory. " +
-        "You should thoroughly analyze the directories list and query for the files of those directories. You can query for as much directories as you need. " +
-        "Prefer to query more directories over less. To query the files of specified directories, you should use the same endpoint and provide the list via RelativePaths request property.";
+        "The response contains the list of directories the repository has as well as the files in the root directory. " +
+        "You should thoroughly analyze the directories list and query this endpoint once again providing the refined list of directories you are interested in. " +
+        "You can query for as much directories as you need. Prefer to query more directories over less. " +
+        "To query the files of specified directories, you should use the same endpoint and provide the list via RelativePaths request property.";
 
 
     public const string QUERY_REPOSITORY_FILES =
