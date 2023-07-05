@@ -12,13 +12,11 @@ namespace ChatGPT.Plugins.Github.Controllers;
 public class AskTheCodePluginController : ControllerBase
 {
     private readonly IMediator _mediator;
-    private readonly ILogger _logger;
 
 
-    public AskTheCodePluginController(IMediator mediator, ILogger<AskTheCodePluginController> logger)
+    public AskTheCodePluginController(IMediator mediator)
     {
         _mediator = mediator;
-        _logger = logger;
     }
 
 
@@ -32,7 +30,7 @@ public class AskTheCodePluginController : ControllerBase
     public async Task<IActionResult> GetRepositoryStructure([FromBody] StructureRequest request, CancellationToken cancellationToken)
     {
         var fileStructureResponse = await _mediator.Send(
-            new GithubRepositoryStructureRequest(request.RepositoryUrl, request.RelativePaths, request.Extensions),
+            new GithubRepositoryStructureRequest(request.RepositoryUrl, request.RelativePaths, null),
             cancellationToken
         );
         
