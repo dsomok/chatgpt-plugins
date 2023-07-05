@@ -19,6 +19,7 @@ internal class GithubRepositoryStructureRequestHandler
     private readonly IEnumerable<IRepositoryStructureReducer> _repositoryStructureReducers;
     private readonly ILogger _logger;
 
+
     public GithubRepositoryStructureRequestHandler(
         IGithubLinkParser githubLinkParser,
         IGithubFilesEnumerator githubFilesEnumerator,
@@ -31,6 +32,7 @@ internal class GithubRepositoryStructureRequestHandler
         _repositoryStructureReducers = repositoryStructureReducers;
         _logger = logger;
     }
+
 
     public async Task<HandlerResponse<GithubRepositoryStructure>> Handle(
         GithubRepositoryStructureRequest request, CancellationToken cancellationToken
@@ -57,6 +59,7 @@ internal class GithubRepositoryStructureRequestHandler
             repositoryDirectoriesStructure, null, REPOSITORY_DIRECTORIES_STRUCTURE_HINT
         );
     }
+
 
     private async Task<GithubRepositoryStructure> GetRepositoryFilesStructureAsync(
         GithubLink githubLink,

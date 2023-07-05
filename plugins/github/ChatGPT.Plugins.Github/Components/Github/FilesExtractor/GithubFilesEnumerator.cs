@@ -1,13 +1,17 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using ChatGPT.Plugins.Github.Models;
+using LazyCache;
 using Octokit;
 
 namespace ChatGPT.Plugins.Github.Components.Github.FilesExtractor;
 
 internal class GithubFilesEnumerator : IGithubFilesEnumerator
 {
+    private readonly TimeSpan CACHE_EXPIRATION = TimeSpan.FromMinutes(5);
+
     private readonly IGitHubClient _githubClient;
+    private readonly IAppCache _cache;
 
     private readonly List<string> _excludedFilePatterns = new()
     {
@@ -20,9 +24,10 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
     };
 
 
-    public GithubFilesEnumerator(IGitHubClient githubClient)
+    public GithubFilesEnumerator(IGitHubClient githubClient, IAppCache cache)
     {
         _githubClient = githubClient;
+        _cache = cache;
     }
 
 
@@ -74,18 +79,22 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
     }
 
 
-    private async Task<TreeResponse> GetRepositoryItemsAsync(GithubLink githubLink, CancellationToken cancellationToken)
+    private Task<TreeResponse> GetRepositoryItemsAsync(GithubLink githubLink, CancellationToken cancellationToken)
     {
-        var repository = await _githubClient.Repository.Get(githubLink.Owner, githubLink.RepositoryName);
+        var key = $"repo-files-{githubLink.Owner}-{githubLink.RepositoryName}";
+        return _cache.GetOrAddAsync(key, async () =>
+        {
+            var repository = await _githubClient.Repository.Get(githubLink.Owner, githubLink.RepositoryName);
 
-        var commits = await _githubClient.Repository.Commit.GetAll(
-            repository.Id,
-            new ApiOptions { PageSize = 1, PageCount = 1 }
-        );
+            var commits = await _githubClient.Repository.Commit.GetAll(
+                repository.Id,
+                new ApiOptions { PageSize = 1, PageCount = 1 }
+            );
 
-        var latestCommit = commits[0];
+            var latestCommit = commits[0];
 
-         return await _githubClient.Git.Tree.GetRecursive(repository.Id, latestCommit!.Sha);
+            return await _githubClient.Git.Tree.GetRecursive(repository.Id, latestCommit!.Sha);
+        }, DateTimeOffset.UtcNow.Add(CACHE_EXPIRATION), ExpirationMode.ImmediateEviction);
     }
 
     private bool IsDirectory(TreeItem treeItem) 

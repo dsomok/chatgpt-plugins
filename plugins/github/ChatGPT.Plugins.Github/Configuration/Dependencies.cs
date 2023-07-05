@@ -28,6 +28,7 @@ public static class Dependencies
         });
 
         services.AddMediatR(config => config.RegisterServicesFromAssembly(typeof(GithubRepositoryFilesRequestHandler).Assembly));
+        services.AddLazyCache();
 
         services.AddControllers()
                 .AddJsonOptions(options =>

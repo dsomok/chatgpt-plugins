@@ -1,7 +1,6 @@
 ﻿using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Running;
-using ChatGPT.Plugins.Github.Benchmarks.Benchmarks;
 
 namespace ChatGPT.Plugins.Github.Benchmarks;
 
@@ -31,7 +30,7 @@ internal class Program
             StatisticColumn.Max
         );
 
-        BenchmarkRunner.Run<GithubFilesEnumeratorBenchmark>(config);
+        // BenchmarkRunner.Run<GithubFilesEnumeratorBenchmark>(config);
 
         Console.ReadKey();
     }
