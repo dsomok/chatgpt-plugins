@@ -48,7 +48,9 @@ internal class GithubRepositoryStructureRequestHandler
             );
         }
 
-        var repositoryDirectoriesStructure = await GetRepositoryDirectoriesStructureAsync(githubLink, cancellationToken);
+        var repositoryDirectoriesStructure = await GetRepositoryDirectoriesStructureAsync(
+            githubLink, request, cancellationToken);
+
         repositoryDirectoriesStructure.AddFiles(repositoryFilesStructure.RootFiles);
 
         return new HandlerResponse<GithubRepositoryStructure>(
@@ -98,11 +100,12 @@ internal class GithubRepositoryStructureRequestHandler
 
     private async Task<GithubRepositoryStructure> GetRepositoryDirectoriesStructureAsync(
         GithubLink githubLink,
+        GithubRepositoryStructureRequest request,
         CancellationToken cancellationToken
     )
     {
         var repositoryDirectories = _githubFilesEnumerator.EnumerateRepositoryDirectoriesAsync(
-            githubLink, cancellationToken);
+            githubLink, request.RelativePaths, cancellationToken);
 
         var filePaths = await repositoryDirectories.ToListAsync(cancellationToken);
 

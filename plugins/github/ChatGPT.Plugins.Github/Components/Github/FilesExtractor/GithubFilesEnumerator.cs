@@ -55,11 +55,14 @@ internal class GithubFilesEnumerator : IGithubFilesEnumerator
 
     public async IAsyncEnumerable<string> EnumerateRepositoryDirectoriesAsync(
         GithubLink githubLink,
+        IList<string> relativePaths,
         [EnumeratorCancellation] CancellationToken cancellationToken
     )
     {
         var treeResponse = await GetRepositoryItemsAsync(githubLink, cancellationToken);
-        var treeItems = treeResponse.Tree.Where(IsDirectory);
+        var treeItems = treeResponse.Tree
+                                    .Where(IsDirectory)
+                                    .Where(treeItem => ContainsInRequestedFilePaths(treeItem, relativePaths)); ;
 
         foreach (var treeItem in treeItems)
         {

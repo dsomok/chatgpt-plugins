@@ -16,6 +16,8 @@ internal interface IGithubFilesEnumerator
     );
 
     IAsyncEnumerable<string> EnumerateRepositoryDirectoriesAsync(
-        GithubLink githubLink, CancellationToken cancellationToken
+        GithubLink githubLink,
+        IList<string> relativePaths,
+        CancellationToken cancellationToken
     );
 }
