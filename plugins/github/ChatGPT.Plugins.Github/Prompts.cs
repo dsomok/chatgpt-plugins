@@ -12,7 +12,8 @@ public static class Prompts
         "Do not perform more than 3 retries of querying the repository structure.";
 
     public const string REPOSITORY_DIRECTORIES_STRUCTURE_HINT =
-        "The response contains the list of directories the repository has as well as the files in the root directory. " +
+        "The response contains the list of directories the repository has. Also it lists the files in the root directory. " +
+        "You are not yet ready to query the QueryGithubRepositoryFileContents endpoint. Instead you should once again query the structure providing the specific directories." +
         "You should thoroughly analyze the directories list and query this endpoint once again providing the refined list of directories you are interested in. " +
         "You can query for as much directories as you need. Prefer to query more directories over less. " +
         "To query the files of specified directories, you should use the same endpoint and provide the list via RelativePaths request property.";
